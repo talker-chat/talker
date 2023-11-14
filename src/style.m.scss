@@ -1,0 +1,61 @@
+.talker {
+    width: 400px;
+    height: 400px;
+    margin: 200px auto;
+
+    background-color: rgba(0,0,0,.7);
+    border-radius: 24px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding: 32px;
+    box-sizing: border-box;
+}
+
+.heading {
+    font-weight: normal;
+    font-size: 24px;
+    padding: 0;
+    margin: 0;
+}
+
+.main {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+}
+
+.actions {
+    display: flex;
+
+    button {
+        outline: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 16px;
+        width: 100px;
+        height: 42px;
+        font-size: 18px;
+        text-align: center;
+        transition: 0.5s;
+        background-size: 200% auto;
+        display: block;
+
+        &:hover {
+            background-position: right center; /* change the direction of the change here */
+        }
+
+        &.startButton {
+            background-image: linear-gradient(to right, #757F9A 0%, #b3b8c0 51%, #757F9A 100%);
+            color: #0d1119;
+        }
+
+        &.cancelButton {
+            background-image: linear-gradient(to right, #303b55 0%, #3d485f 51%, #303b55 100%);
+            color: rgb(133, 147, 152);
+        }
+    }
+}

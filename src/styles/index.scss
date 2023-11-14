@@ -1,0 +1,19 @@
+@import "./fonts.scss";
+
+body {
+  height: 100vh;
+
+  padding: 0;
+  margin: 0;
+
+  background: linear-gradient(rgb(16, 27, 60), rgb(133, 147, 152));
+  background-repeat: no-repeat;
+  color: rgb(133, 147, 152);
+  overflow: hidden;
+
+  font-family: "Play", sans-serif;
+}
+
+audio {
+  display: none;
+}
