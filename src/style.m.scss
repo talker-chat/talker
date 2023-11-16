@@ -44,10 +44,6 @@
         background-size: 200% auto;
         display: block;
 
-        &:hover {
-            background-position: right center; /* change the direction of the change here */
-        }
-
         &.startButton {
             background-image: linear-gradient(to right, #757F9A 0%, #b3b8c0 51%, #757F9A 100%);
             color: #0d1119;
@@ -56,6 +52,15 @@
         &.cancelButton {
             background-image: linear-gradient(to right, #303b55 0%, #3d485f 51%, #303b55 100%);
             color: rgb(133, 147, 152);
+        }
+
+        &:hover {
+            background-position: right center; /* change the direction of the change here */
+        }
+
+        &:disabled {
+            background-position: center;
+            cursor: not-allowed;
         }
     }
 }

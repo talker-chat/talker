@@ -1,74 +1,33 @@
 /* eslint-disable no-console */
 import { CallDurationTimer } from "@components/CallDurationTimer"
 import Loader from "@components/Loader"
-import ringSound from "assets/audio/ring.mp3"
+import Ringtone from "@components/Ringtone"
+import dayjs from 'dayjs';
 import React, { useState, useEffect, useRef } from "react"
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
+
+import config from "@root/config"
+
+import { cleanupMedia, setupRemoteMedia } from "@helpers/app"
+
+import { SIPEventListener, Invite } from "@interfaces/app"
 
 import type { Session } from "sip.js"
 
 import styles from "./style.m.scss"
 
-const config = {
-  host: "gazzzati.ru",
-  account: "1001",
-  password: "7411",
-  dst: "1002",
-  sound: true
-}
-
-type Invite = {
-  startedAt: Date | null
-  answeredAt: Date | null
-}
-
-type SIPEventListener = (data: SessionState) => void
-
-export const setupRemoteMedia = (session: Session) => {
-  const remoteStream = new MediaStream()
-  // @ts-ignore
-  session.sessionDescriptionHandler.peerConnection.getReceivers().forEach(receiver => {
-    if (receiver.track) remoteStream.addTrack(receiver.track)
-  })
-
-  const audio = document.getElementById("audio") as HTMLAudioElement
-
-  if (audio) {
-    audio.srcObject = remoteStream
-    audio.play()
-  }
-}
-
-export const cleanupMedia = () => {
-  const audio = document.getElementById("audio") as HTMLAudioElement
-  audio.srcObject = null
-  audio.pause()
-}
-
-export const getMediaElement = (): HTMLAudioElement => {
-  return document.getElementById("ringing") as HTMLAudioElement
-}
-
-export const playRing = () => {
-  getMediaElement().volume = 0.16
-  getMediaElement().play()
-}
-
-export const pauseRing = () => {
-  getMediaElement().pause()
-}
-
 const App = () => {
   const [ua, setUA] = useState<UserAgent | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [inCall, setInCall] = useState<boolean>(false)
+  const [registered, setRegistered] = useState<boolean>(false)
+  const [playRingtone, setPlayRingtone] = useState<boolean>(false)
 
   const [registerer, setRegisterer] = useState<Registerer | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [invite, setInvite] = useState<Invite>({startedAt: null, answeredAt: null,})
 
   const eventListener = useRef<SIPEventListener>()
-  const ringSoundInterval = useRef(0)
 
   const registration = () => {
     try {
@@ -88,12 +47,14 @@ const App = () => {
       reg.stateChange.addListener(newState => {
         switch (newState) {
           case RegistererState.Registered:
+            setRegistered(true)
             console.log("Online")
             break
 
           case RegistererState.Terminated:
           case RegistererState.Unregistered:
-            console.log("Offline")
+            setRegistered(false)
+            console.log("Not registered")
             break
 
           default:
@@ -107,26 +68,14 @@ const App = () => {
           reg.register()
         })
         .catch(() => {
-          console.log("Offline")
+          console.log("Not registered")
         })
 
       setUA(UA)
       setRegisterer(reg)
     } catch {
-      // console.log("Phone error", err)
+      console.log("Registration error")
     }
-  }
-
-  const startRingSound = () => {
-    if (!config || !config.sound) return
-
-    playRing()
-    ringSoundInterval.current = window.setInterval(() => playRing(), 2000)
-  }
-
-  const stopRingSound = () => {
-    pauseRing()
-    if (ringSoundInterval.current) clearInterval(ringSoundInterval.current)
   }
 
   const outboundCall = () => {
@@ -145,12 +94,12 @@ const App = () => {
 
     outboundSession.invite()
     setSession(outboundSession)
-    startRingSound()
+    setPlayRingtone(true)
     setLoading(true)
     setInCall(true)
     console.log("send invite => ")
 
-    setInvite({ ...invite, startedAt: new Date() })
+    setInvite({ ...invite, startedAt: dayjs().toDate() })
   }
 
   const unregister = () => {
@@ -176,7 +125,7 @@ const App = () => {
   const sessionListener = (newState: SessionState) => {
     const terminate = () => {
       cleanupMedia()
-      stopRingSound()
+      setPlayRingtone(false)
       setLoading(false)
       setInCall(false)
       setInvite({startedAt: null, answeredAt: null})
@@ -189,8 +138,8 @@ const App = () => {
       //   break
 
       case SessionState.Established:
-        setInvite({ ...invite, answeredAt: new Date() })
-        stopRingSound()
+        setInvite({ ...invite, answeredAt: dayjs().toDate() })
+        setPlayRingtone(false)
         setLoading(false)
         if (session) setupRemoteMedia(session)
         break
@@ -230,10 +179,7 @@ const App = () => {
 
         {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
 
-        <audio id="ringing" controls >
-          <track default kind="captions" />
-          <source src={ringSound} type="audio/wav"/>
-        </audio>
+        {config.sound && <Ringtone play={playRingtone}/>}
 
         <audio id="audio" controls>
           <track default kind="captions" />
@@ -244,7 +190,7 @@ const App = () => {
          {inCall ? (
            <button className={styles.cancelButton} onClick={hangup}>cancel</button>
          ) : (
-           <button className={styles.startButton} onClick={outboundCall}>start</button>
+           <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>start</button>
          )}
        </div>
     </div>
