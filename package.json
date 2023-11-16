@@ -1,8 +1,8 @@
 {
-  "name": "webphone",
-  "version": "1.0.0",
+  "name": "talker",
+  "version": "2.0.0",
   "main": "index.js",
-  "repository": "https://github.com/gazzati/webphone.git",
+  "repository": "https://github.com/gazzati/talker.git",
   "author": "gazzati <gazzaevtimur@gmail.com>",
   "license": "MIT",
   "scripts": {

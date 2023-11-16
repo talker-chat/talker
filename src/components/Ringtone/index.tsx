@@ -24,13 +24,15 @@ const Ringtone = ({ play }: { play: boolean }) => {
 
   useEffect(() => {
     setRingtone(gerRandomRingtone())
+  }, [])
 
+  useEffect(() => {
     if (!play) return pauseRing()
     playRing()
   }, [play])
 
   return (
-    <audio id="ringtone">
+    <audio id="ringtone" loop>
       <source src={ringtone} type="audio/wav" />
     </audio>
   )
