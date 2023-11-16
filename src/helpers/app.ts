@@ -20,3 +20,10 @@ export const cleanupMedia = () => {
   audio.srcObject = null
   audio.pause()
 }
+
+export const toggleMicro = (session: Session, muted: boolean) => {
+  // @ts-ignore
+  session.sessionDescriptionHandler.peerConnection.getLocalStreams().forEach(stream => {
+    stream.getAudioTracks().forEach(track => (track.enabled = muted))
+  })
+}

@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { CallDurationTimer } from "@components/CallDurationTimer"
+import { Mic, MicOff } from "@components/Icons"
 import Loader from "@components/Loader"
 import Ringtone from "@components/Ringtone"
 import dayjs from "dayjs"
@@ -8,7 +9,7 @@ import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "s
 
 import config from "@root/config"
 
-import { cleanupMedia, setupRemoteMedia } from "@helpers/app"
+import { cleanupMedia, setupRemoteMedia, toggleMicro } from "@helpers/app"
 
 import { SIPEventListener, Invite } from "@interfaces/app"
 
@@ -22,6 +23,7 @@ const App = () => {
   const [inCall, setInCall] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
   const [playRingtone, setPlayRingtone] = useState<boolean>(false)
+  const [muted, setMuted] = useState<boolean>(false)
 
   const [registerer, setRegisterer] = useState<Registerer | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -125,12 +127,22 @@ const App = () => {
     session.cancel()
   }
 
+  const handleMute = () => {
+    if(!session) return
+    toggleMicro(session, muted)
+    setMuted(!muted)
+  }
+
   const sessionListener = (newState: SessionState) => {
+    if(!session) return
+
     const terminate = () => {
       cleanupMedia()
       setPlayRingtone(false)
       setLoading(false)
       setInCall(false)
+      setMuted(false)
+      toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
@@ -192,6 +204,10 @@ const App = () => {
       </div>
 
       <div className={styles.actions}>
+      {inCall && <div className={styles.mute} onClick={handleMute}>
+          {muted ? <MicOff /> : <Mic />}
+        </div>}
+
         {inCall ? (
           <button className={styles.cancelButton} onClick={hangup}>
             cancel
