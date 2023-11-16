@@ -2,7 +2,7 @@
 import { CallDurationTimer } from "@components/CallDurationTimer"
 import Loader from "@components/Loader"
 import Ringtone from "@components/Ringtone"
-import dayjs from 'dayjs';
+import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
 
@@ -25,9 +25,11 @@ const App = () => {
 
   const [registerer, setRegisterer] = useState<Registerer | null>(null)
   const [session, setSession] = useState<Session | null>(null)
-  const [invite, setInvite] = useState<Invite>({startedAt: null, answeredAt: null,})
+  const [invite, setInvite] = useState<Invite>({ startedAt: null, answeredAt: null })
 
   const eventListener = useRef<SIPEventListener>()
+
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
   const registration = () => {
     try {
@@ -35,6 +37,7 @@ const App = () => {
         authorizationUsername: config.account,
         authorizationPassword: config.password,
         contactName: config.account,
+        displayName: config.account,
         logLevel: "error",
         uri: UserAgent.makeURI(`sip:${config.account}@${config.host}`),
         transportOptions: {
@@ -117,7 +120,7 @@ const App = () => {
     setInCall(false)
     if (!session) return
 
-    if(invite.answeredAt) return session.bye()
+    if (invite.answeredAt) return session.bye()
     // @ts-ignore
     session.cancel()
   }
@@ -128,7 +131,7 @@ const App = () => {
       setPlayRingtone(false)
       setLoading(false)
       setInCall(false)
-      setInvite({startedAt: null, answeredAt: null})
+      setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
 
@@ -179,7 +182,9 @@ const App = () => {
 
         {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
 
-        {config.sound && <Ringtone play={playRingtone}/>}
+        {config.sound && <Ringtone play={playRingtone} />}
+
+        {isIOS && <div className={styles.notSupport}>Sorry, IOS mobile devices are temporarily not supported</div>}
 
         <audio id="audio" controls>
           <track default kind="captions" />
@@ -187,12 +192,16 @@ const App = () => {
       </div>
 
       <div className={styles.actions}>
-         {inCall ? (
-           <button className={styles.cancelButton} onClick={hangup}>cancel</button>
-         ) : (
-           <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>start</button>
-         )}
-       </div>
+        {inCall ? (
+          <button className={styles.cancelButton} onClick={hangup}>
+            cancel
+          </button>
+        ) : (
+          <button className={styles.startButton} onClick={outboundCall} disabled={!registered || isIOS}>
+            start
+          </button>
+        )}
+      </div>
     </div>
   )
 }

@@ -13,6 +13,11 @@
     flex-direction: column;
     padding: 32px;
     box-sizing: border-box;
+
+    @media (max-width: 767px) {
+        width: 90%;
+        margin: 100px auto 0 auto;
+      }
 }
 
 .heading {
@@ -26,6 +31,10 @@
     flex-grow: 1;
     display: flex;
     align-items: center;
+
+    .notSupport {
+        text-align: center;
+    }
 }
 
 .actions {
