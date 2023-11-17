@@ -185,7 +185,7 @@ const App = () => {
 
   useEffect(() => {
     fetchStats()
-    setInterval(fetchStats, 10000)
+    setInterval(fetchStats, 20000)
 
     registration()
     window.addEventListener("beforeunload", () => unregister())
@@ -202,7 +202,10 @@ const App = () => {
   return (
     <div className={styles.talker}>
       <h3 className={styles.heading}>#talker</h3>
-      {stats.contacts ? <p className={styles.stats}>{`${stats.contacts} people are talking now`}</p> : ""}
+
+      <p className={styles.stats}>
+        {stats.contacts ? `${stats.contacts} people are talking now` : ""}
+      </p>
 
       <div className={styles.main}>
         {loading && <Loader />}
