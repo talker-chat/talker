@@ -1,5 +1,5 @@
 export default {
-  host: "gazzzati.ru",
+  host: "talker.su",
   account: "44",
   password: "44",
   dst: "talker",

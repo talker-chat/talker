@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { api } from "@api/index"
 import { CallDurationTimer } from "@components/CallDurationTimer"
 import { Mic, MicOff } from "@components/Icons"
 import Loader from "@components/Loader"
@@ -24,6 +25,7 @@ const App = () => {
   const [registered, setRegistered] = useState<boolean>(false)
   const [playRingtone, setPlayRingtone] = useState<boolean>(false)
   const [muted, setMuted] = useState<boolean>(false)
+  const [stats, setStats] = useState({ contacts: 0 })
 
   const [registerer, setRegisterer] = useState<Registerer | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -172,9 +174,20 @@ const App = () => {
     }
   }
 
+  const fetchStats = async () => {
+    try {
+      console.log(111)
+      const response = await api.get("/stats")
+      setStats({ contacts: response.data.visits })
+    } catch (error){
+      console.error(error)
+    }
+  }
+
   useEffect(() => {
     registration()
     window.addEventListener("beforeunload", () => unregister())
+    fetchStats()
   }, [])
 
   useEffect(() => {
@@ -188,6 +201,7 @@ const App = () => {
   return (
     <div className={styles.talker}>
       <h3 className={styles.heading}>#talker</h3>
+      {stats.contacts ? <p className={styles.stats}>{`${stats.contacts} people are talking now`}</p> : ""}
 
       <div className={styles.main}>
         {loading && <Loader />}
