@@ -176,18 +176,19 @@ const App = () => {
 
   const fetchStats = async () => {
     try {
-      console.log(111)
       const response = await api.get("/stats")
-      setStats({ contacts: response.data.visits })
+      setStats({ contacts: response.data.contacts })
     } catch (error){
       console.error(error)
     }
   }
 
   useEffect(() => {
+    fetchStats()
+    setInterval(fetchStats, 10000)
+
     registration()
     window.addEventListener("beforeunload", () => unregister())
-    fetchStats()
   }, [])
 
   useEffect(() => {
