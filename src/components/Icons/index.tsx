@@ -1,5 +1,4 @@
 import { Mic } from "./Mic"
 import { MicOff } from "./MicOff"
 
-
-export{ Mic, MicOff }
+export { Mic, MicOff }

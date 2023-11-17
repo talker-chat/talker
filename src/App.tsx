@@ -128,13 +128,13 @@ const App = () => {
   }
 
   const handleMute = () => {
-    if(!session) return
+    if (!session) return
     toggleMicro(session, muted)
     setMuted(!muted)
   }
 
   const sessionListener = (newState: SessionState) => {
-    if(!session) return
+    if (!session) return
 
     const terminate = () => {
       cleanupMedia()
@@ -204,9 +204,11 @@ const App = () => {
       </div>
 
       <div className={styles.actions}>
-      {inCall && <div className={styles.mute} onClick={handleMute}>
-          {muted ? <MicOff /> : <Mic />}
-        </div>}
+        {inCall && (
+          <div className={styles.mute} onClick={handleMute}>
+            {muted ? <MicOff /> : <Mic />}
+          </div>
+        )}
 
         {inCall ? (
           <button className={styles.cancelButton} onClick={hangup}>

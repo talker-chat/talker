@@ -5,7 +5,7 @@ import React, { useState, useEffect } from "react"
 
 const RINGTONES = [ring1, ring2, ring3]
 
-const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random()*RINGTONES.length)]
+const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random() * RINGTONES.length)]
 
 const getRingtoneElement = () => document.getElementById("ringtone") as HTMLAudioElement
 

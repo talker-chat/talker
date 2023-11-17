@@ -1,94 +1,94 @@
 .talker {
-    width: 400px;
-    height: 400px;
-    margin: 200px auto;
+  width: 400px;
+  height: 400px;
+  margin: 200px auto;
 
-    background-color: rgba(0,0,0,.7);
-    border-radius: 24px;
-    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 24px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
 
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    flex-direction: column;
-    padding: 32px;
-    box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 32px;
+  box-sizing: border-box;
 
-    @media (max-width: 767px) {
-        width: 90%;
-        margin: 100px auto 0 auto;
-      }
+  @media (max-width: 767px) {
+    width: 90%;
+    margin: 100px auto 0 auto;
+  }
 }
 
 .heading {
-    font-weight: normal;
-    font-size: 24px;
-    padding: 0;
-    margin: 0;
+  font-weight: normal;
+  font-size: 24px;
+  padding: 0;
+  margin: 0;
 }
 
 .main {
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
 
-    .notSupport {
-        text-align: center;
-    }
+  .notSupport {
+    text-align: center;
+  }
 }
 
 .actions {
+  display: flex;
+  flex-direction: column;
+
+  .mute {
+    height: 50px;
+    width: 50px;
+    border-radius: 32px;
+    background-color: #303b55;
+    font-size: 14px;
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto 12px;
 
-    .mute {
-        height: 50px;
-        width: 50px;
-        border-radius: 32px;
-        background-color: #303b55;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        margin: 0 auto 12px;
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
 
-        svg {
-            width: 32px;
-            height: 32px;
-        }
+  button {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 16px;
+    width: 100px;
+    height: 42px;
+    font-size: 18px;
+    text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    display: block;
+
+    &.startButton {
+      background-image: linear-gradient(to right, #757f9a 0%, #b3b8c0 51%, #757f9a 100%);
+      color: #0d1119;
     }
 
-    button {
-        outline: none;
-        border: none;
-        cursor: pointer;
-        border-radius: 16px;
-        width: 100px;
-        height: 42px;
-        font-size: 18px;
-        text-align: center;
-        transition: 0.5s;
-        background-size: 200% auto;
-        display: block;
-
-        &.startButton {
-            background-image: linear-gradient(to right, #757F9A 0%, #b3b8c0 51%, #757F9A 100%);
-            color: #0d1119;
-        }
-
-        &.cancelButton {
-            background-image: linear-gradient(to right, #303b55 0%, #3d485f 51%, #303b55 100%);
-            color: rgb(133, 147, 152);
-        }
-
-        &:hover {
-            background-position: right center; /* change the direction of the change here */
-        }
-
-        &:disabled {
-            background-position: center;
-            cursor: not-allowed;
-        }
+    &.cancelButton {
+      background-image: linear-gradient(to right, #303b55 0%, #3d485f 51%, #303b55 100%);
+      color: rgb(133, 147, 152);
     }
+
+    &:hover {
+      background-position: right center; /* change the direction of the change here */
+    }
+
+    &:disabled {
+      background-position: center;
+      cursor: not-allowed;
+    }
+  }
 }
