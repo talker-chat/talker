@@ -1,9 +1,11 @@
 /* eslint-disable no-console */
 import { api } from "@api/index"
+import ring1 from "@assets/audio/1.mp3"
+import ring2 from '@assets/audio/2.mp3';
+import ring3 from '@assets/audio/3.mp3';
 import { CallDurationTimer } from "@components/CallDurationTimer"
 import { Mic, MicOff } from "@components/Icons"
 import Loader from "@components/Loader"
-import Ringtone from "@components/Ringtone"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
@@ -18,12 +20,16 @@ import type { Session } from "sip.js"
 
 import styles from "./style.m.scss"
 
+const RINGTONES = [ring1, ring2, ring3]
+const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random() * RINGTONES.length)]
+
 const App = () => {
   const [ua, setUA] = useState<UserAgent | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [inCall, setInCall] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
-  const [playRingtone, setPlayRingtone] = useState<boolean>(false)
+  const [ringtone, setRingtone] = useState<string>()
+  const [audio, setAudio] = useState<HTMLAudioElement>()
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
@@ -34,7 +40,7 @@ const App = () => {
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
+console.log(navigator.userAgent)
   const registration = () => {
     try {
       const UA = new UserAgent({
@@ -101,7 +107,7 @@ const App = () => {
 
     outboundSession.invite()
     setSession(outboundSession)
-    setPlayRingtone(true)
+    playRing()
     setLoading(true)
     setInCall(true)
     console.log("send invite => ")
@@ -140,11 +146,11 @@ const App = () => {
 
     const terminate = () => {
       cleanupMedia()
-      setPlayRingtone(false)
+      pauseRing()
       setLoading(false)
       setInCall(false)
       setMuted(false)
-      toggleMicro(session, false)
+      !isIOS && toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
@@ -156,7 +162,7 @@ const App = () => {
 
       case SessionState.Established:
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        setPlayRingtone(false)
+        pauseRing()
         setLoading(false)
         if (session) setupRemoteMedia(session)
         break
@@ -183,12 +189,39 @@ const App = () => {
     }
   }
 
+  const playRing = () => {
+    console.log("playRing")
+    if(!config.sound || isIOS) return
+
+    if(audio) {
+      audio?.play().catch((e) => console.error(e))
+      return
+    }
+
+    const _audio = new Audio(ringtone)
+    setAudio(_audio)
+    _audio.load();
+    _audio.loop = true
+    _audio.volume = 0.17
+    _audio.addEventListener('canplaythrough', () => {
+      _audio &&
+      _audio.play().catch((e) => console.error(e))
+    });
+  };
+
+  const pauseRing = () => {
+    console.log("pauseRing", audio)
+    audio?.pause()
+  }
+
   useEffect(() => {
     fetchStats()
     setInterval(fetchStats, 20000)
 
     registration()
     window.addEventListener("beforeunload", () => unregister())
+
+    setRingtone(gerRandomRingtone())
   }, [])
 
   useEffect(() => {
@@ -211,18 +244,10 @@ const App = () => {
         {loading && <Loader />}
 
         {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
-
-        {config.sound && <Ringtone play={playRingtone} />}
-
-        {isIOS && <div className={styles.notSupport}>Sorry, IOS mobile devices are temporarily not supported</div>}
-
-        <audio id="audio" controls>
-          <track default kind="captions" />
-        </audio>
       </div>
 
       <div className={styles.actions}>
-        {inCall && (
+        {inCall && !isIOS && (
           <div className={styles.mute} onClick={handleMute}>
             {muted ? <MicOff /> : <Mic />}
           </div>
@@ -233,7 +258,7 @@ const App = () => {
             cancel
           </button>
         ) : (
-          <button className={styles.startButton} onClick={outboundCall} disabled={!registered || isIOS}>
+          <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
             start
           </button>
         )}
