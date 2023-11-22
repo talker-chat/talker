@@ -1,5 +1,17 @@
 import type { Session } from "sip.js"
 
+export const disableAudioControls = () => {
+  const EVENTS: Array<MediaSessionAction> = [
+    "play",
+    "pause",
+    "seekbackward",
+    "seekforward",
+    "previoustrack",
+    "nexttrack"
+  ]
+  EVENTS.forEach(event => navigator.mediaSession.setActionHandler(event, () => null))
+}
+
 export const setupRemoteMedia = (session: Session) => {
   const remoteStream = new MediaStream()
   // @ts-ignore

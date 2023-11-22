@@ -10,7 +10,7 @@ import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "s
 
 import config from "@root/config"
 
-import { cleanupMedia, setupRemoteMedia, toggleMicro } from "@helpers/app"
+import { disableAudioControls, cleanupMedia, setupRemoteMedia, toggleMicro } from "@helpers/app"
 
 import { SIPEventListener, Invite } from "@interfaces/app"
 
@@ -188,7 +188,9 @@ const App = () => {
     setInterval(fetchStats, 20000)
 
     registration()
-    window.addEventListener("beforeunload", () => unregister())
+    window.addEventListener("beforeunload", unregister)
+
+    disableAudioControls()
   }, [])
 
   useEffect(() => {
