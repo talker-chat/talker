@@ -19,6 +19,8 @@ import type { Session } from "sip.js"
 import styles from "./style.m.scss"
 
 const App = () => {
+  const [stream, setStream] = useState<MediaStream | null>(null)
+
   const [ua, setUA] = useState<UserAgent | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [inCall, setInCall] = useState<boolean>(false)
@@ -34,7 +36,7 @@ const App = () => {
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-  console.log(navigator.userAgent)
+
   const registration = () => {
     try {
       const UA = new UserAgent({
@@ -131,7 +133,7 @@ const App = () => {
 
   const handleMute = () => {
     if (!session) return
-    toggleMicro(session, muted)
+    toggleMicro(stream, muted)
     setMuted(!muted)
   }
 
@@ -144,7 +146,7 @@ const App = () => {
       setLoading(false)
       setInCall(false)
       setMuted(false)
-      !isIOS && toggleMicro(session, false)
+      toggleMicro(stream, false)
       setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
@@ -158,7 +160,7 @@ const App = () => {
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
         setPlayRingtone(false)
         setLoading(false)
-        if (session) setupRemoteMedia(session)
+        if (session) setupRemoteMedia(stream, session)
         break
 
       case SessionState.Terminating:
@@ -190,6 +192,8 @@ const App = () => {
     registration()
     window.addEventListener("beforeunload", unregister)
 
+    setStream(new MediaStream())
+
     disableAudioControls()
   }, [])
 
@@ -216,7 +220,7 @@ const App = () => {
       </div>
 
       <div className={styles.actions}>
-        {inCall && !isIOS && (
+        {inCall && (
           <div className={styles.mute} onClick={handleMute}>
             {muted ? <MicOff /> : <Mic />}
           </div>

@@ -12,15 +12,16 @@ export const disableAudioControls = () => {
   EVENTS.forEach(event => navigator.mediaSession.setActionHandler(event, () => null))
 }
 
-export const setupRemoteMedia = (session: Session) => {
-  const remoteStream = new MediaStream()
+export const setupRemoteMedia = (stream: MediaStream | null, session: Session) => {
+  if (!stream) return
+
   // @ts-ignore
   session.sessionDescriptionHandler.peerConnection.getReceivers().forEach(receiver => {
-    if (receiver.track) remoteStream.addTrack(receiver.track)
+    if (receiver.track) stream.addTrack(receiver.track)
   })
 
   const a = new Audio()
-  a.srcObject = remoteStream
+  a.srcObject = stream
   a.play()
 }
 
@@ -30,9 +31,12 @@ export const cleanupMedia = () => {
   // audio.pause()
 }
 
-export const toggleMicro = (session: Session, muted: boolean) => {
+export const toggleMicro = (stream: MediaStream | null, muted: boolean) => {
   // @ts-ignore
-  session.sessionDescriptionHandler.peerConnection.getLocalStreams().forEach(stream => {
-    stream.getAudioTracks().forEach(track => (track.enabled = muted))
-  })
+  // session.sessionDescriptionHandler.peerConnection.getLocalStreams().forEach(stream => {
+  //   stream.getAudioTracks().forEach(track => (track.enabled = muted))
+  // })
+  if (!stream) return
+
+  stream.getAudioTracks()[0].enabled = muted
 }
