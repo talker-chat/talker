@@ -19,18 +19,15 @@ export const setupRemoteMedia = (session: Session) => {
     if (receiver.track) remoteStream.addTrack(receiver.track)
   })
 
-  const audio = document.getElementById("audio") as HTMLAudioElement
-
-  if (audio) {
-    audio.srcObject = remoteStream
-    audio.play()
-  }
+  const a = new Audio()
+  a.srcObject = remoteStream
+  a.play()
 }
 
 export const cleanupMedia = () => {
-  const audio = document.getElementById("audio") as HTMLAudioElement
-  audio.srcObject = null
-  audio.pause()
+  // const audio = document.getElementById("audio") as HTMLAudioElement
+  // audio.srcObject = null
+  // audio.pause()
 }
 
 export const toggleMicro = (session: Session, muted: boolean) => {

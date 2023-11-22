@@ -34,7 +34,7 @@ const App = () => {
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
+  console.log(navigator.userAgent)
   const registration = () => {
     try {
       const UA = new UserAgent({
@@ -144,7 +144,7 @@ const App = () => {
       setLoading(false)
       setInCall(false)
       setMuted(false)
-      toggleMicro(session, false)
+      !isIOS && toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
@@ -178,7 +178,7 @@ const App = () => {
     try {
       const response = await api.get("/stats")
       setStats({ contacts: response.data.contacts })
-    } catch (error){
+    } catch (error) {
       console.error(error)
     }
   }
@@ -205,26 +205,18 @@ const App = () => {
     <div className={styles.talker}>
       <h3 className={styles.heading}>#talker</h3>
 
-      <p className={styles.stats}>
-        {stats.contacts ? `${stats.contacts} people are talking now` : ""}
-      </p>
+      <p className={styles.stats}>{stats.contacts ? `${stats.contacts} people are talking now` : ""}</p>
 
       <div className={styles.main}>
         {loading && <Loader />}
 
         {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
 
-        {config.sound && <Ringtone play={playRingtone} />}
-
-        {isIOS && <div className={styles.notSupport}>Sorry, IOS mobile devices are temporarily not supported</div>}
-
-        <audio id="audio" controls>
-          <track default kind="captions" />
-        </audio>
+        {config.sound && !isIOS && <Ringtone play={playRingtone} />}
       </div>
 
       <div className={styles.actions}>
-        {inCall && (
+        {inCall && !isIOS && (
           <div className={styles.mute} onClick={handleMute}>
             {muted ? <MicOff /> : <Mic />}
           </div>
@@ -235,7 +227,7 @@ const App = () => {
             cancel
           </button>
         ) : (
-          <button className={styles.startButton} onClick={outboundCall} disabled={!registered || isIOS}>
+          <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
             start
           </button>
         )}
