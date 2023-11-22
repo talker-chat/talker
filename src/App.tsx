@@ -1,11 +1,9 @@
 /* eslint-disable no-console */
 import { api } from "@api/index"
-import ring1 from "@assets/audio/1.mp3"
-import ring2 from '@assets/audio/2.mp3';
-import ring3 from '@assets/audio/3.mp3';
 import { CallDurationTimer } from "@components/CallDurationTimer"
 import { Mic, MicOff } from "@components/Icons"
 import Loader from "@components/Loader"
+import Ringtone from "@components/Ringtone"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
@@ -20,16 +18,12 @@ import type { Session } from "sip.js"
 
 import styles from "./style.m.scss"
 
-const RINGTONES = [ring1, ring2, ring3]
-const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random() * RINGTONES.length)]
-
 const App = () => {
   const [ua, setUA] = useState<UserAgent | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [inCall, setInCall] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
-  const [ringtone, setRingtone] = useState<string>()
-  const [audio, setAudio] = useState<HTMLAudioElement>()
+  const [playRingtone, setPlayRingtone] = useState<boolean>(false)
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
@@ -40,7 +34,7 @@ const App = () => {
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-console.log(navigator.userAgent)
+  console.log(navigator.userAgent)
   const registration = () => {
     try {
       const UA = new UserAgent({
@@ -107,7 +101,7 @@ console.log(navigator.userAgent)
 
     outboundSession.invite()
     setSession(outboundSession)
-    playRing()
+    setPlayRingtone(true)
     setLoading(true)
     setInCall(true)
     console.log("send invite => ")
@@ -146,7 +140,7 @@ console.log(navigator.userAgent)
 
     const terminate = () => {
       cleanupMedia()
-      pauseRing()
+      setPlayRingtone(false)
       setLoading(false)
       setInCall(false)
       setMuted(false)
@@ -162,7 +156,7 @@ console.log(navigator.userAgent)
 
       case SessionState.Established:
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        pauseRing()
+        setPlayRingtone(false)
         setLoading(false)
         if (session) setupRemoteMedia(session)
         break
@@ -184,34 +178,9 @@ console.log(navigator.userAgent)
     try {
       const response = await api.get("/stats")
       setStats({ contacts: response.data.contacts })
-    } catch (error){
+    } catch (error) {
       console.error(error)
     }
-  }
-
-  const playRing = () => {
-    console.log("playRing")
-    if(!config.sound || isIOS) return
-
-    if(audio) {
-      audio?.play().catch((e) => console.error(e))
-      return
-    }
-
-    const _audio = new Audio(ringtone)
-    setAudio(_audio)
-    _audio.load();
-    _audio.loop = true
-    _audio.volume = 0.17
-    _audio.addEventListener('canplaythrough', () => {
-      _audio &&
-      _audio.play().catch((e) => console.error(e))
-    });
-  };
-
-  const pauseRing = () => {
-    console.log("pauseRing", audio)
-    audio?.pause()
   }
 
   useEffect(() => {
@@ -220,8 +189,6 @@ console.log(navigator.userAgent)
 
     registration()
     window.addEventListener("beforeunload", () => unregister())
-
-    setRingtone(gerRandomRingtone())
   }, [])
 
   useEffect(() => {
@@ -236,14 +203,14 @@ console.log(navigator.userAgent)
     <div className={styles.talker}>
       <h3 className={styles.heading}>#talker</h3>
 
-      <p className={styles.stats}>
-        {stats.contacts ? `${stats.contacts} people are talking now` : ""}
-      </p>
+      <p className={styles.stats}>{stats.contacts ? `${stats.contacts} people are talking now` : ""}</p>
 
       <div className={styles.main}>
         {loading && <Loader />}
 
         {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
+
+        {config.sound && !isIOS && <Ringtone play={playRingtone} />}
       </div>
 
       <div className={styles.actions}>
