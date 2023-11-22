@@ -6,6 +6,7 @@ import Loader from "@components/Loader"
 import Ringtone from "@components/Ringtone"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
+import uuid from 'react-uuid';
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
 
 import config from "@root/config"
@@ -22,6 +23,10 @@ const App = () => {
   const [stream, setStream] = useState<MediaStream | null>(null)
 
   const [ua, setUA] = useState<UserAgent | null>(null)
+  const [registerer, setRegisterer] = useState<Registerer | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [invite, setInvite] = useState<Invite>({ startedAt: null, answeredAt: null })
+
   const [loading, setLoading] = useState<boolean>(false)
   const [inCall, setInCall] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
@@ -29,21 +34,20 @@ const App = () => {
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
-  const [registerer, setRegisterer] = useState<Registerer | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const [invite, setInvite] = useState<Invite>({ startedAt: null, answeredAt: null })
-
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
-  const registration = () => {
+  const registration = async  () => {
+    const ip = await getLocalIp()
+    console.log("ip", ip)
+
     try {
       const UA = new UserAgent({
         authorizationUsername: config.account,
         authorizationPassword: config.password,
         contactName: config.account,
-        displayName: config.account,
+        displayName: ip,
         logLevel: "error",
         uri: UserAgent.makeURI(`sip:${config.account}@${config.host}`),
         transportOptions: {
@@ -64,9 +68,6 @@ const App = () => {
           case RegistererState.Unregistered:
             setRegistered(false)
             console.log("Not registered")
-            break
-
-          default:
             break
         }
       })
@@ -113,11 +114,9 @@ const App = () => {
 
   const unregister = () => {
     if (!registerer) return
-    if (session) {
-      // @ts-ignore
-      session.reject()
-    }
 
+     // @ts-ignore
+    if (session) session.reject()
     registerer.unregister()
   }
 
@@ -153,26 +152,30 @@ const App = () => {
 
     switch (newState) {
       // case SessionState.Establishing:
-      //   setMaximized(true)
-      //   break
 
       case SessionState.Established:
-        setInvite({ ...invite, answeredAt: dayjs().toDate() })
         setPlayRingtone(false)
         setLoading(false)
+        setInvite({ ...invite, answeredAt: dayjs().toDate() })
         if (session) setupRemoteMedia(stream, session)
         break
 
       case SessionState.Terminating:
-        terminate()
-        break
-
       case SessionState.Terminated:
         terminate()
         break
+    }
+  }
 
-      default:
-        break
+  const getLocalIp = async (): Promise<string> => {
+    const defaultIp = `anonymous-${uuid().slice(0, 13)}`
+
+    try {
+      const response = await api.get("/ip")
+      return response.data.ip || defaultIp
+    } catch (error) {
+      console.error(error)
+      return defaultIp
     }
   }
 
@@ -186,11 +189,11 @@ const App = () => {
   }
 
   useEffect(() => {
-    fetchStats()
-    setInterval(fetchStats, 20000)
-
     registration()
     window.addEventListener("beforeunload", unregister)
+
+    fetchStats()
+    setInterval(fetchStats, 20000)
 
     setStream(new MediaStream())
 
@@ -220,7 +223,7 @@ const App = () => {
       </div>
 
       <div className={styles.actions}>
-        {inCall && (
+        {invite.answeredAt && (
           <div className={styles.mute} onClick={handleMute}>
             {muted ? <MicOff /> : <Mic />}
           </div>

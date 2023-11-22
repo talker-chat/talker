@@ -38,5 +38,8 @@ export const toggleMicro = (stream: MediaStream | null, muted: boolean) => {
   // })
   if (!stream) return
 
-  stream.getAudioTracks()[0].enabled = muted
+  const track = stream.getAudioTracks()[0]
+  if (!track) return
+
+  track.enabled = muted
 }
