@@ -132,7 +132,7 @@ const App = () => {
 
   const handleMute = () => {
     if (!session) return
-    toggleMicro(stream, muted)
+    toggleMicro(session, muted)
     setMuted(!muted)
   }
 
@@ -145,7 +145,7 @@ const App = () => {
       setLoading(false)
       setInCall(false)
       setMuted(false)
-      toggleMicro(stream, false)
+      toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
       console.log("terminate")
     }
