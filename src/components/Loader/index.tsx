@@ -6,7 +6,7 @@ const Loader = () => {
   return <div>
     <Lottie
     options={{animationData}}
-    height={300}
+    height={260}
   />
   </div>
 }
