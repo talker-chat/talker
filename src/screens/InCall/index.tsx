@@ -1,20 +1,18 @@
-
-import {CallDurationTimer} from '@components/CallDurationTimer'
-import {Mic, MicOff} from '@components/Icons'
-import VolumeRange from '@components/VolumeRange'
 import React from "react"
+
+import {CallDurationTimer} from '@root/components/CallDurationTimer';
+import {Mic, MicOff} from '@root/components/Icons';
 
 import styles from "../style.m.scss"
 
 type Props = {
   answeredAt: Date
-  streamAudio: HTMLAudioElement | null
   muted: boolean
   handleMute: () => void
   hangup: () => void
-}
+  }
 
-const InCall: React.FC<Props> = ({ answeredAt, streamAudio, muted, handleMute, hangup }) => {
+const InCall: React.FC<Props> = ({ answeredAt, muted, handleMute, hangup }) => {
   return (
     <>
       <div className={styles.main}>
@@ -23,8 +21,6 @@ const InCall: React.FC<Props> = ({ answeredAt, streamAudio, muted, handleMute, h
       </div>
 
       <div className={styles.actions}>
-        {!!streamAudio && <VolumeRange audio={streamAudio} />}
-
         {answeredAt && (
           <div className={styles.mute} onClick={handleMute}>
             {muted ? <MicOff /> : <Mic />}
