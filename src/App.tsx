@@ -146,8 +146,6 @@ const App = () => {
   const fetchStats = async () => {
     const contacts = await getStats()
     setStats({ contacts })
-
-    setInterval(fetchStats, config.fetchStatsDelay)
   }
 
   useEffect(() => {
@@ -155,6 +153,7 @@ const App = () => {
     window.addEventListener("beforeunload", unregister)
 
     fetchStats()
+    setInterval(fetchStats, config.fetchStatsDelay)
 
     setStream(new MediaStream())
     initAudio()
