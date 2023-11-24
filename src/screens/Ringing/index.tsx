@@ -23,8 +23,8 @@ const Ringing: React.FC<Props> = ({ loading, hangup }) => {
      </div>
 
       <div className={styles.actions}>
-        <button className={styles.cancelButton} onClick={hangup} >
-        Завершить
+        <button className={styles.darkButton} onClick={hangup} >
+          Отменить поиск
         </button>
       </div>
     </>

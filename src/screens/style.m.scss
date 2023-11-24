@@ -57,6 +57,11 @@
     }
   }
 
+  .buttons {
+    display: flex;
+    gap: 12px
+  }
+
   button {
     outline: none;
     border: none;
@@ -78,7 +83,7 @@
       }
     }
 
-    &.cancelButton {
+    &.darkButton {
       background-color: rgba(255, 255, 255, 0.10);
       &:hover {
         background-color: rgba(255, 255, 255, 0.07);

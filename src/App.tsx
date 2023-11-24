@@ -3,7 +3,7 @@ import { Logo } from "@components/Icons"
 import { Idle, Ringing, InCall } from "@screens/index"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
-import { UserAgent, Registerer, SessionState, RegistererState } from "sip.js"
+import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
 
 import config from "@root/config"
 
@@ -27,6 +27,7 @@ const App = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
   const [muted, setMuted] = useState<boolean>(false)
+  const [nextRequest, setNextRequest] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
   const eventListener = useRef<SIPEventListener>()
@@ -88,13 +89,37 @@ const App = () => {
     registerer.unregister()
   }
 
+  const outboundCall = () => {
+    if (!ua) return
+
+    const target = UserAgent.makeURI(`sip:${config.dst}@${config.host}`)
+    if (!target) {
+      throw new Error("Failed to create target URI.")
+    }
+
+    const outboundSession = new Inviter(ua, target, {
+      sessionDescriptionHandlerOptions: {
+        constraints: { audio: true, video: false }
+      }
+    })
+
+    outboundSession.invite()
+    setSession(outboundSession)
+    setLoading(true)
+    setInvite({ ...invite, startedAt: dayjs().toDate() })
+
+    logger.log("send invite => ")
+  }
+
   const hangup = () => {
+    logger.log("hangup", nextRequest)
     setLoading(false)
     if (!session) return
 
-    if (invite.answeredAt) return session.bye()
+    if (invite.answeredAt) return session.bye().catch(e => logger.error(e))
     // @ts-ignore
     session.cancel()
+    logger.log("hangup", nextRequest)
   }
 
   const handleMute = () => {
@@ -104,16 +129,31 @@ const App = () => {
 
   }
 
+  const next = () => {
+    setNextRequest(true)
+    hangup()
+  }
+
   const sessionListener = (newState: SessionState) => {
     if (!session) return
 
     const terminate = () => {
+      logger.log("terminate", nextRequest)
+
       cleanupMedia()
-      setLoading(false)
+
       setMuted(false)
       toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
-      logger.log("terminate")
+      logger.log("terminate", nextRequest)
+      if(nextRequest) {
+        outboundCall()
+        setLoading(true)
+        setNextRequest(false)
+        return
+      }
+
+      setLoading(false)
     }
 
     switch (newState) {
@@ -158,18 +198,8 @@ const App = () => {
 
   const getScreen = () => {
     if (loading) return <Ringing loading={loading} hangup={hangup} />
-
-    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} muted={muted} handleMute={handleMute} hangup={hangup}/>
-
-    return (
-      <Idle
-        ua={ua}
-        registered={registered}
-        setSession={setSession}
-        setLoading={setLoading}
-        setStartedAt={startedAt => setInvite({ ...invite, startedAt })}
-      />
-    )
+    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} muted={muted} handleMute={handleMute} hangup={hangup} next={next}/>
+    return <Idle registered={registered} outboundCall={outboundCall} />
   }
 
   return (
