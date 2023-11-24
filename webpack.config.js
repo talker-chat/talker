@@ -100,7 +100,7 @@ module.exports = (env, { mode }) => {
         "@components": path.resolve(__dirname, "./src/components"),
         "@helpers": path.resolve(__dirname, "./src/helpers"),
         "@interfaces": path.resolve(__dirname, "./src/interfaces"),
-        "@pages": path.resolve(__dirname, "./src/pages"),
+        "@screens": path.resolve(__dirname, "./src/screens"),
         "@styles": path.resolve(__dirname, "./src/styles")
       }
     },

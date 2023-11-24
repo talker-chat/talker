@@ -1,17 +1,14 @@
-/* eslint-disable no-console */
-import { api } from "@api/index"
-import { CallDurationTimer } from "@components/CallDurationTimer"
-import { Mic, MicOff } from "@components/Icons"
-import Loader from "@components/Loader"
-import Ringtone from "@components/Ringtone"
+import { getLocalIp, getStats } from "@api/index"
+import { Logo } from "@components/Icons"
+import { Idle, Ringing, InCall } from "@screens/index"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
-import uuid from 'react-uuid';
-import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
+import { UserAgent, Registerer, SessionState, RegistererState } from "sip.js"
 
 import config from "@root/config"
 
 import { disableAudioControls, cleanupMedia, setupRemoteMedia, toggleMicro } from "@helpers/app"
+import logger from "@helpers/logger"
 
 import { SIPEventListener, Invite } from "@interfaces/app"
 
@@ -28,19 +25,14 @@ const App = () => {
   const [invite, setInvite] = useState<Invite>({ startedAt: null, answeredAt: null })
 
   const [loading, setLoading] = useState<boolean>(false)
-  const [inCall, setInCall] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
-  const [playRingtone, setPlayRingtone] = useState<boolean>(false)
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
   const eventListener = useRef<SIPEventListener>()
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
-  const registration = async  () => {
+  const registration = async () => {
     const ip = await getLocalIp()
-    console.log("ip", ip)
 
     try {
       const UA = new UserAgent({
@@ -61,68 +53,43 @@ const App = () => {
         switch (newState) {
           case RegistererState.Registered:
             setRegistered(true)
-            console.log("Online")
+            logger.log("Online")
             break
 
           case RegistererState.Terminated:
           case RegistererState.Unregistered:
             setRegistered(false)
-            console.log("Not registered")
+            logger.log("Not registered")
             break
         }
       })
 
       UA.start()
         .then(() => {
-          console.log("Connecting")
+          logger.log("Connecting")
           reg.register()
         })
         .catch(() => {
-          console.log("Not registered")
+          logger.log("Not registered")
         })
 
       setUA(UA)
       setRegisterer(reg)
     } catch {
-      console.log("Registration error")
+      logger.log("Registration error")
     }
-  }
-
-  const outboundCall = () => {
-    if (!ua) return
-
-    const target = UserAgent.makeURI(`sip:${config.dst}@${config.host}`)
-    if (!target) {
-      throw new Error("Failed to create target URI.")
-    }
-
-    const outboundSession = new Inviter(ua, target, {
-      sessionDescriptionHandlerOptions: {
-        constraints: { audio: true, video: false }
-      }
-    })
-
-    outboundSession.invite()
-    setSession(outboundSession)
-    setPlayRingtone(true)
-    setLoading(true)
-    setInCall(true)
-    console.log("send invite => ")
-
-    setInvite({ ...invite, startedAt: dayjs().toDate() })
   }
 
   const unregister = () => {
     if (!registerer) return
 
-     // @ts-ignore
+    // @ts-ignore
     if (session) session.reject()
     registerer.unregister()
   }
 
   const hangup = () => {
     setLoading(false)
-    setInCall(false)
     if (!session) return
 
     if (invite.answeredAt) return session.bye()
@@ -131,9 +98,10 @@ const App = () => {
   }
 
   const handleMute = () => {
+    setMuted(!muted)
     if (!session) return
     toggleMicro(session, muted)
-    setMuted(!muted)
+
   }
 
   const sessionListener = (newState: SessionState) => {
@@ -141,20 +109,17 @@ const App = () => {
 
     const terminate = () => {
       cleanupMedia()
-      setPlayRingtone(false)
       setLoading(false)
-      setInCall(false)
       setMuted(false)
       toggleMicro(session, false)
       setInvite({ startedAt: null, answeredAt: null })
-      console.log("terminate")
+      logger.log("terminate")
     }
 
     switch (newState) {
       // case SessionState.Establishing:
 
       case SessionState.Established:
-        setPlayRingtone(false)
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
         if (session) setupRemoteMedia(stream, session)
@@ -167,25 +132,9 @@ const App = () => {
     }
   }
 
-  const getLocalIp = async (): Promise<string> => {
-    const defaultIp = `anonymous-${uuid().slice(0, 13)}`
-
-    try {
-      const response = await api.get("/ip")
-      return response.data.ip || defaultIp
-    } catch (error) {
-      console.error(error)
-      return defaultIp
-    }
-  }
-
   const fetchStats = async () => {
-    try {
-      const response = await api.get("/stats")
-      setStats({ contacts: response.data.contacts })
-    } catch (error) {
-      console.error(error)
-    }
+    const contacts = await getStats()
+    setStats({ contacts })
   }
 
   useEffect(() => {
@@ -196,7 +145,6 @@ const App = () => {
     setInterval(fetchStats, 20000)
 
     setStream(new MediaStream())
-
     disableAudioControls()
   }, [])
 
@@ -208,37 +156,29 @@ const App = () => {
     }
   }, [session, invite.startedAt, invite.answeredAt])
 
+  const getScreen = () => {
+    if (loading) return <Ringing loading={loading} hangup={hangup} />
+
+    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} muted={muted} handleMute={handleMute} hangup={hangup}/>
+
+    return (
+      <Idle
+        ua={ua}
+        registered={registered}
+        setSession={setSession}
+        setLoading={setLoading}
+        setStartedAt={startedAt => setInvite({ ...invite, startedAt })}
+      />
+    )
+  }
+
   return (
     <div className={styles.talker}>
-      <h3 className={styles.heading}>#talker</h3>
+      <Logo />
 
-      <p className={styles.stats}>{stats.contacts ? `${stats.contacts} people are talking now` : ""}</p>
+      <p className={styles.stats}>{`Сейчас онлайн: ${stats.contacts}`}</p>
 
-      <div className={styles.main}>
-        {loading && <Loader />}
-
-        {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
-
-        {config.sound && !isIOS && <Ringtone play={playRingtone} />}
-      </div>
-
-      <div className={styles.actions}>
-        {invite.answeredAt && (
-          <div className={styles.mute} onClick={handleMute}>
-            {muted ? <MicOff /> : <Mic />}
-          </div>
-        )}
-
-        {inCall ? (
-          <button className={styles.cancelButton} onClick={hangup}>
-            cancel
-          </button>
-        ) : (
-          <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
-            start
-          </button>
-        )}
-      </div>
+      {getScreen()}
     </div>
   )
 }

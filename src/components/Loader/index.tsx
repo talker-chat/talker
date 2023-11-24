@@ -1,9 +1,14 @@
+import * as animationData from "@assets/lottie/cat.json"
 import React from "react"
-
-import styles from "./style.m.scss"
+import Lottie from 'react-lottie';
 
 const Loader = () => {
-  return <div className={styles.loader}></div>
+  return <div>
+    <Lottie
+    options={{animationData}}
+    height={300}
+  />
+  </div>
 }
 
 export default Loader

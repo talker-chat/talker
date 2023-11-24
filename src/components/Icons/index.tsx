@@ -1,4 +1,5 @@
+import { Logo } from "./Logo"
 import { Mic } from "./Mic"
 import { MicOff } from "./MicOff"
 
-export { Mic, MicOff }
+export { Logo, Mic, MicOff }
