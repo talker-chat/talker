@@ -1,6 +1,5 @@
 .wrapper {
   width: 50%;
-
   margin: 40px auto;
 
   display: flex;
@@ -10,6 +9,10 @@
 
   svg {
     cursor: pointer;
+  }
+
+  @media (max-width: 767px) {
+    width: 70%;
   }
 
   .renderTrack {
