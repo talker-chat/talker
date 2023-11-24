@@ -31,7 +31,9 @@ const App = () => {
 
   const eventListener = useRef<SIPEventListener>()
 
-  const registration = async () => {
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+
+  const registration = async  () => {
     const ip = await getLocalIp()
 
     try {
@@ -122,7 +124,7 @@ const App = () => {
       case SessionState.Established:
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        if (session) setupRemoteMedia(stream, session)
+        if (session) setupRemoteMedia(stream, session, streamAudio)
         break
 
       case SessionState.Terminating:
@@ -178,7 +180,31 @@ const App = () => {
 
       <p className={styles.stats}>{`Сейчас онлайн: ${stats.contacts}`}</p>
 
-      {getScreen()}
+      <div className={styles.main}>
+        {loading && <Loader />}
+
+        {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
+
+        {config.sound && !isIOS && <Ringtone play={playRingtone} />}
+      </div>
+
+      <div className={styles.actions}>
+        {invite.answeredAt && (
+          <div className={styles.mute} onClick={handleMute}>
+            {muted ? <MicOff /> : <Mic />}
+          </div>
+        )}
+
+        {inCall ? (
+          <button className={styles.cancelButton} onClick={hangup}>
+            cancel
+          </button>
+        ) : (
+          <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
+            start
+          </button>
+        )}
+      </div>
     </div>
   )
 }

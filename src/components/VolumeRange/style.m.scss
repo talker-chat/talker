@@ -1,0 +1,33 @@
+.wrapper {
+  width: 70%;
+
+  margin: 2em 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+
+  svg {
+    cursor: pointer;
+  }
+
+  .renderTrack {
+    height: 24px;
+    width: 100%;
+
+    display: flex;
+  }
+
+  .renderThumb {
+    height: 16px;
+    width: 16px;
+
+    border-radius: 50%;
+
+    background-color: white;
+    box-shadow: "0px 2px 6px #AAA";
+
+    cursor: pointer !important;
+  }
+}
