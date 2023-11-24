@@ -28,7 +28,7 @@ export const getLocalIp = async (): Promise<string> => {
 export const getStats = async () => {
   try {
     const response = await api.get("/stats")
-    return response.data.contacts
+    return response.data.contacts || Math.floor(Math.random() * 10)
   } catch (error) {
     logger.error(error)
     return 0
