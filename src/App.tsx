@@ -6,7 +6,7 @@ import Loader from "@components/Loader"
 import Ringtone from "@components/Ringtone"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
-import uuid from 'react-uuid';
+import uuid from "react-uuid"
 import { UserAgent, Registerer, SessionState, RegistererState, Inviter } from "sip.js"
 
 import config from "@root/config"
@@ -17,6 +17,7 @@ import { SIPEventListener, Invite } from "@interfaces/app"
 
 import type { Session } from "sip.js"
 
+import { VolumeRange } from "./components/VolumeRange"
 import styles from "./style.m.scss"
 
 const App = () => {
@@ -38,7 +39,9 @@ const App = () => {
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
 
-  const registration = async  () => {
+  const streamAudio = new Audio()
+
+  const registration = async () => {
     const ip = await getLocalIp()
     console.log("ip", ip)
 
@@ -115,7 +118,7 @@ const App = () => {
   const unregister = () => {
     if (!registerer) return
 
-     // @ts-ignore
+    // @ts-ignore
     if (session) session.reject()
     registerer.unregister()
   }
@@ -157,7 +160,7 @@ const App = () => {
         setPlayRingtone(false)
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        if (session) setupRemoteMedia(stream, session)
+        if (session) setupRemoteMedia(stream, session, streamAudio)
         break
 
       case SessionState.Terminating:
@@ -221,6 +224,8 @@ const App = () => {
 
         {config.sound && !isIOS && <Ringtone play={playRingtone} />}
       </div>
+
+      {inCall && <VolumeRange audio={streamAudio} />}
 
       <div className={styles.actions}>
         {invite.answeredAt && (
