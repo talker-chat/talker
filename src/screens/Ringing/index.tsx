@@ -19,7 +19,7 @@ const Ringing: React.FC<Props> = ({ loading, hangup }) => {
       <div className={styles.main}>
         <Loader />
 
-        {config.ringSound && !isIOS && <Ringtone play={loading} />}
+        {config.sound && !isIOS && <Ringtone play={loading} />}
       </div>
 
       <div className={styles.actions}>

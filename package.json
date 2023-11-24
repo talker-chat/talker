@@ -1,6 +1,6 @@
 {
   "name": "talker",
-  "version": "2.0.2",
+  "version": "2.0.1",
   "main": "index.js",
   "repository": "https://github.com/gazzati/talker.git",
   "author": "gazzati <gazzaevtimur@gmail.com>",
@@ -19,7 +19,6 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-lottie": "^1.2.3",
-    "react-range": "^1.8.14",
     "react-uuid": "^2.0.0",
     "sip.js": "^0.21.2"
   },
