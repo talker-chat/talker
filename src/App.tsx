@@ -29,8 +29,6 @@ const App = () => {
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
-  const [streamAudio, setStreamAudio] = useState<HTMLAudioElement | null>(null)
-
   const eventListener = useRef<SIPEventListener>()
 
   const registration = async () => {
@@ -124,7 +122,7 @@ const App = () => {
       case SessionState.Established:
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        setupRemoteMedia(stream, session, streamAudio)
+        if (session) setupRemoteMedia(stream, session)
         break
 
       case SessionState.Terminating:
@@ -134,20 +132,9 @@ const App = () => {
     }
   }
 
-  const initAudio = () => {
-    const streamAudio = new Audio()
-
-    streamAudio.volume = config.audio.initVolume
-    setStreamAudio(streamAudio)
-
-    disableAudioControls()
-  }
-
   const fetchStats = async () => {
     const contacts = await getStats()
     setStats({ contacts })
-
-    setInterval(fetchStats, config.fetchStatsDelay)
   }
 
   useEffect(() => {
@@ -155,9 +142,10 @@ const App = () => {
     window.addEventListener("beforeunload", unregister)
 
     fetchStats()
+    setInterval(fetchStats, 20000)
 
     setStream(new MediaStream())
-    initAudio()
+    disableAudioControls()
   }, [])
 
   useEffect(() => {
@@ -171,8 +159,7 @@ const App = () => {
   const getScreen = () => {
     if (loading) return <Ringing loading={loading} hangup={hangup} />
 
-    // if (invite.answeredAt)
-    return <InCall answeredAt={new Date()} streamAudio={streamAudio} muted={muted} handleMute={handleMute} hangup={hangup} />
+    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} muted={muted} handleMute={handleMute} hangup={hangup}/>
 
     return (
       <Idle
@@ -192,7 +179,6 @@ const App = () => {
       <p className={styles.stats}>{`Сейчас онлайн: ${stats.contacts}`}</p>
 
       {getScreen()}
-
     </div>
   )
 }
