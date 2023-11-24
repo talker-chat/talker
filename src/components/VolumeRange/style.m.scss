@@ -1,12 +1,12 @@
 .wrapper {
-  width: 70%;
+  width: 50%;
 
-  margin: 2em 0;
+  margin: 40px auto;
 
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
 
   svg {
     cursor: pointer;
@@ -20,11 +20,12 @@
   }
 
   .renderThumb {
-    height: 16px;
-    width: 16px;
+    height: 12px;
+    width: 12px;
 
     border-radius: 50%;
 
+    outline: none;
     background-color: white;
     box-shadow: "0px 2px 6px #AAA";
 

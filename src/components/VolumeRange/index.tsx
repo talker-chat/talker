@@ -1,51 +1,54 @@
-import React, { FC, useState } from "react"
+import { VolumeDown, VolumeUp } from "@components/Icons"
+import React, { useState } from "react"
 import { Range, getTrackBackground } from "react-range"
 
-import { VolumeDown, VolumeUp } from "../Icons"
+import config from "@root/config"
 
 import styles from "./style.m.scss"
 
-const STEP = 0.01
-const MIN = 0
-const MAX = 1
-export const VolumeRange: FC<{ audio: HTMLAudioElement }> = ({ audio }) => {
-  const [currentVolume, setCurrentVolume] = useState([0.5])
+type Props = {
+  audio: HTMLAudioElement
+}
+
+const VolumeRange: React.FC<Props> = ({ audio }) => {
+  const [currentVolume, setCurrentVolume] = useState(config.audio.initVolume)
+
   const handleChangeVolumeFromThumb = (values: Array<number>) => {
     audio.volume = values[0]
-    setCurrentVolume(values)
+    setCurrentVolume(values[0])
   }
 
   const handleClickVolumeMin = () => {
     audio.volume = 0
-    setCurrentVolume([0])
+    setCurrentVolume(0)
   }
 
   const handleClickVolumeMax = () => {
     audio.volume = 1
-    setCurrentVolume([1])
+    setCurrentVolume(1)
   }
   return (
     <div className={styles.wrapper}>
       <VolumeDown handleClick={handleClickVolumeMin} />
       <Range
-        values={currentVolume}
-        step={STEP}
-        min={MIN}
-        max={MAX}
+        values={[currentVolume]}
+        step={config.audio.step}
+        min={config.audio.min}
+        max={config.audio.max}
         onChange={values => handleChangeVolumeFromThumb(values)}
         renderTrack={({ props, children }) => (
           <div onMouseDown={props.onMouseDown} onTouchStart={props.onTouchStart} className={styles.renderTrack}>
             <div
               ref={props.ref}
               style={{
-                height: "5px",
+                height: 4,
                 width: "100%",
-                borderRadius: "4px",
+                borderRadius: 4,
                 background: getTrackBackground({
-                  values: currentVolume,
-                  colors: ["#303b55", "#ccc"],
-                  min: MIN,
-                  max: MAX
+                  values: [currentVolume],
+                  colors: ["#9D9EA2", "#303b55"],
+                  min: config.audio.min,
+                  max: config.audio.max
                 }),
                 alignSelf: "center"
               }}
@@ -60,3 +63,5 @@ export const VolumeRange: FC<{ audio: HTMLAudioElement }> = ({ audio }) => {
     </div>
   )
 }
+
+export default VolumeRange
