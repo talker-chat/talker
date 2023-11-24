@@ -24,7 +24,6 @@ export const VolumeRange: FC<{ audio: HTMLAudioElement }> = ({ audio }) => {
     audio.volume = 1
     setCurrentVolume([1])
   }
-
   return (
     <div className={styles.wrapper}>
       <VolumeDown handleClick={handleClickVolumeMin} />
