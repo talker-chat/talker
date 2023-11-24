@@ -48,7 +48,7 @@
     transition: 0.5s;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.07);
+      background-color: rgba(255, 255, 255, 0.13);
     }
 
     svg {
@@ -81,7 +81,7 @@
     &.cancelButton {
       background-color: rgba(255, 255, 255, 0.10);
       &:hover {
-        background-color: rgba(255, 255, 255, 0.07);
+        background-color: rgba(255, 255, 255, 0.13);
       }
     }
 
