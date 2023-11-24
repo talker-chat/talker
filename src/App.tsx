@@ -193,34 +193,7 @@ const App = () => {
 
       <p className={styles.stats}>{`Сейчас онлайн: ${stats.contacts}`}</p>
 
-      <div className={styles.main}>
-        {loading && <Loader />}
-
-        {invite.answeredAt && <CallDurationTimer answeredAt={invite.answeredAt} />}
-
-        {config.sound && !isIOS && <Ringtone play={playRingtone} />}
-      </div>
-
-
-      {inCall && !!streamAudio && <VolumeRange audio={streamAudio} />}
-
-      <div className={styles.actions}>
-        {invite.answeredAt && (
-          <div className={styles.mute} onClick={handleMute}>
-            {muted ? <MicOff /> : <Mic />}
-          </div>
-        )}
-
-        {inCall ? (
-          <button className={styles.cancelButton} onClick={hangup}>
-            cancel
-          </button>
-        ) : (
-          <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
-            start
-          </button>
-        )}
-      </div>
+      {getScreen()}
     </div>
   )
 }
