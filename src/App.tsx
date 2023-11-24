@@ -171,8 +171,7 @@ const App = () => {
   const getScreen = () => {
     if (loading) return <Ringing loading={loading} hangup={hangup} />
 
-    // if (invite.answeredAt)
-    return <InCall answeredAt={new Date()} streamAudio={streamAudio} muted={muted} handleMute={handleMute} hangup={hangup} />
+    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} streamAudio={streamAudio} muted={muted} handleMute={handleMute} hangup={hangup} />
 
     return (
       <Idle

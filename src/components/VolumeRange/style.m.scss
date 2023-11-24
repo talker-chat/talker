@@ -12,6 +12,10 @@
     cursor: pointer;
   }
 
+  @media (max-width: 767px) {
+    width: 70%;
+  }
+
   .renderTrack {
     height: 24px;
     width: 100%;
