@@ -28,7 +28,7 @@
       "@components/*": ["./components/*"],
       "@helpers/*": ["./helpers/*"],
       "@interfaces/*": ["./interfaces/*"],
-      "@pages/*": ["./pages/*"],
+      "@screens/*": ["./screens/*"],
       "@styles/*": ["./styles/*"]
     },
     "plugins": [

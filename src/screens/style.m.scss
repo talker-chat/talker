@@ -1,0 +1,93 @@
+.main {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.info {
+  height: 76px;
+  padding: 16px 40px;
+  align-self: flex-end;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-sizing: border-box;
+  background: rgba(249, 253, 67, 0.05);
+  color: #fff;
+
+  font-size: 14px;
+  line-height: 22px;
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+}
+
+.timer {
+  align-self: flex-start;
+  margin-top: 20px;
+  font-size: 24px;
+  line-height: 28px;
+  color: #fff;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .mute {
+    height: 72px;
+    width: 72px;
+    border-radius: 100px;
+    background-color: rgba(255, 255, 255, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin: 0 auto 40px;
+    transition: 0.5s;
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.13);
+    }
+
+    svg {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  button {
+    outline: none;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    width: 100%;
+    height: 60px;
+    color: #fff;
+    font-size: 18px;
+    text-align: center;
+    transition: 0.5s;
+    background-size: 200% auto;
+    display: block;
+
+    &.startButton {
+      background-image: linear-gradient(91deg, #43BFF5 0%, #0C70B9 100%);
+      &:hover {
+        background-position: right center; /* change the direction of the change here */
+      }
+    }
+
+    &.cancelButton {
+      background-color: rgba(255, 255, 255, 0.10);
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.13);
+      }
+    }
+
+    &:disabled {
+      background-position: center;
+      cursor: not-allowed;
+    }
+  }
+}

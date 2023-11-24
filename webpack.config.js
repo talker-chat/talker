@@ -1,6 +1,7 @@
 const path = require("path")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const CopyPlugin = require("copy-webpack-plugin")
 
 const Modes = {
   DEVELOPMENT: "development",
@@ -33,6 +34,10 @@ module.exports = (env, { mode }) => {
 
       new MiniCssExtractPlugin({
         filename: isProduction ? "[name]-[contenthash].css" : "[name].css"
+      }),
+
+      new CopyPlugin({
+        patterns: [{ from: "src/assets/images/og.png", to: "" }]
       })
     ],
 
@@ -100,7 +105,7 @@ module.exports = (env, { mode }) => {
         "@components": path.resolve(__dirname, "./src/components"),
         "@helpers": path.resolve(__dirname, "./src/helpers"),
         "@interfaces": path.resolve(__dirname, "./src/interfaces"),
-        "@pages": path.resolve(__dirname, "./src/pages"),
+        "@screens": path.resolve(__dirname, "./src/screens"),
         "@styles": path.resolve(__dirname, "./src/styles")
       }
     },
