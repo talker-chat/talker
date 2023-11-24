@@ -6,3 +6,7 @@ export type Invite = {
 }
 
 export type SIPEventListener = (data: SessionState) => void
+
+export type SettingsType = {
+  open: boolean
+}

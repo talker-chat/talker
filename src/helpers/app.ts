@@ -12,17 +12,20 @@ export const disableAudioControls = () => {
   EVENTS.forEach(event => navigator.mediaSession.setActionHandler(event, () => null))
 }
 
-export const setupRemoteMedia = (stream: MediaStream | null, session: Session) => {
-  if (!stream) return
+export const setupRemoteMedia = (
+  stream: MediaStream | null,
+  session: Session,
+  streamAudio: HTMLAudioElement | null
+) => {
+  if (!stream || !session || !streamAudio) return
 
   // @ts-ignore
   session.sessionDescriptionHandler.peerConnection.getReceivers().forEach(receiver => {
     if (receiver.track) stream.addTrack(receiver.track)
   })
 
-  const a = new Audio()
-  a.srcObject = stream
-  a.play()
+  streamAudio.srcObject = stream
+  streamAudio.play()
 }
 
 export const cleanupMedia = () => {
