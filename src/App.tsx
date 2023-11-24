@@ -35,11 +35,11 @@ const App = () => {
   const [muted, setMuted] = useState<boolean>(false)
   const [stats, setStats] = useState({ contacts: 0 })
 
+  const [streamAudio, setStreamAudio] = useState<HTMLAudioElement | null>(null)
+
   const eventListener = useRef<SIPEventListener>()
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
-  const streamAudio = new Audio()
 
   const registration = async () => {
     const ip = await getLocalIp()
@@ -160,7 +160,7 @@ const App = () => {
         setPlayRingtone(false)
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        if (session) setupRemoteMedia(stream, session, streamAudio)
+        if (session) setupRemoteMedia(stream, session, setStreamAudio)
         break
 
       case SessionState.Terminating:
@@ -225,7 +225,7 @@ const App = () => {
         {config.sound && !isIOS && <Ringtone play={playRingtone} />}
       </div>
 
-      {inCall && <VolumeRange audio={streamAudio} />}
+      {inCall && !!streamAudio && <VolumeRange audio={streamAudio} />}
 
       <div className={styles.actions}>
         {invite.answeredAt && (
