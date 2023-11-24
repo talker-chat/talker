@@ -1,5 +1,3 @@
-import { Dispatch, SetStateAction } from "react"
-
 import type { Session } from "sip.js"
 
 export const disableAudioControls = () => {
@@ -17,19 +15,17 @@ export const disableAudioControls = () => {
 export const setupRemoteMedia = (
   stream: MediaStream | null,
   session: Session,
-  setStreamAudio: Dispatch<SetStateAction<HTMLAudioElement | null>>
+  streamAudio: HTMLAudioElement | null
 ) => {
-  if (!stream) return
+  if (!stream || !session || !streamAudio) return
 
   // @ts-ignore
   session.sessionDescriptionHandler.peerConnection.getReceivers().forEach(receiver => {
     if (receiver.track) stream.addTrack(receiver.track)
   })
-  const streamAudio = new Audio()
+
   streamAudio.srcObject = stream
-  streamAudio.volume = 0.5
   streamAudio.play()
-  setStreamAudio(streamAudio)
 }
 
 export const cleanupMedia = () => {

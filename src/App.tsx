@@ -3,7 +3,6 @@ import { Logo } from "@components/Icons"
 import { Idle, Ringing, InCall } from "@screens/index"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
-
 import { UserAgent, Registerer, SessionState, RegistererState } from "sip.js"
 
 import config from "@root/config"
@@ -15,7 +14,6 @@ import { SIPEventListener, Invite } from "@interfaces/app"
 
 import type { Session } from "sip.js"
 
-import { VolumeRange } from "./components/VolumeRange"
 import styles from "./style.m.scss"
 
 const App = () => {
@@ -126,7 +124,7 @@ const App = () => {
       case SessionState.Established:
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
-        if (session) setupRemoteMedia(stream, session, setStreamAudio)
+        setupRemoteMedia(stream, session, streamAudio)
         break
 
       case SessionState.Terminating:
@@ -136,9 +134,20 @@ const App = () => {
     }
   }
 
+  const initAudio = () => {
+    const streamAudio = new Audio()
+
+    streamAudio.volume = config.audio.initVolume
+    setStreamAudio(streamAudio)
+
+    disableAudioControls()
+  }
+
   const fetchStats = async () => {
     const contacts = await getStats()
     setStats({ contacts })
+
+    setInterval(fetchStats, config.fetchStatsDelay)
   }
 
   useEffect(() => {
@@ -146,10 +155,9 @@ const App = () => {
     window.addEventListener("beforeunload", unregister)
 
     fetchStats()
-    setInterval(fetchStats, 20000)
 
     setStream(new MediaStream())
-    disableAudioControls()
+    initAudio()
   }, [])
 
   useEffect(() => {
@@ -163,7 +171,8 @@ const App = () => {
   const getScreen = () => {
     if (loading) return <Ringing loading={loading} hangup={hangup} />
 
-    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} muted={muted} handleMute={handleMute} hangup={hangup}/>
+    // if (invite.answeredAt)
+    return <InCall answeredAt={new Date()} streamAudio={streamAudio} muted={muted} handleMute={handleMute} hangup={hangup} />
 
     return (
       <Idle
