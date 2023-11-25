@@ -80,14 +80,6 @@ const App = () => {
     }
   }
 
-  const unregister = () => {
-    if(!window.sipSession) return
-
-    if (invite.answeredAt) return window.sipSession.bye()
-    // @ts-ignore
-    window.sipSession.cancel()
-  }
-
   const hangup = () => {
     setLoading(false)
     if (!session) return
@@ -120,6 +112,8 @@ const App = () => {
       // case SessionState.Establishing:
 
       case SessionState.Established:
+        logger.log("established")
+
         setLoading(false)
         setInvite({ ...invite, answeredAt: dayjs().toDate() })
         setupRemoteMedia(stream, session, streamAudio)
@@ -148,7 +142,7 @@ const App = () => {
 
   useEffect(() => {
     registration()
-    window.addEventListener("beforeunload", unregister)
+    window.addEventListener("beforeunload", () => window.sipSession?.bye())
 
     fetchStats()
     setInterval(fetchStats, config.fetchStatsDelay)
