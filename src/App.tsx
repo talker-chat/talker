@@ -20,7 +20,6 @@ const App = () => {
   const [stream, setStream] = useState<MediaStream | null>(null)
 
   const [ua, setUA] = useState<UserAgent | null>(null)
-  const [registerer, setRegisterer] = useState<Registerer | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [invite, setInvite] = useState<Invite>({ startedAt: null, answeredAt: null })
 
@@ -76,18 +75,17 @@ const App = () => {
         })
 
       setUA(UA)
-      setRegisterer(reg)
     } catch {
       logger.log("Registration error")
     }
   }
 
   const unregister = () => {
-    if (!registerer) return
+    if(!window.sipSession) return
 
+    if (invite.answeredAt) return window.sipSession.bye()
     // @ts-ignore
-    if (session) session.reject()
-    registerer.unregister()
+    window.sipSession.cancel()
   }
 
   const hangup = () => {

@@ -34,6 +34,7 @@ const Idle: React.FC<Props> = ({ ua, registered, setSession, setLoading, setStar
     setSession(outboundSession)
     setLoading(true)
     setStartedAt(dayjs().toDate())
+    window.sipSession = outboundSession
 
     logger.log("send invite => ")
   }
