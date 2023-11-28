@@ -17,7 +17,7 @@ type Props = {
 
 const Idle: React.FC<Props> = ({ ua, registered, setSession, setLoading, setStartedAt }) => {
   const outboundCall = () => {
-    if (!ua) return
+    if(!ua || !registered) return alert("Неизвестная ошибка, попробуйте позже")
 
     const target = UserAgent.makeURI(`sip:${config.dst}@${config.host}`)
     if (!target) {
@@ -48,7 +48,7 @@ const Idle: React.FC<Props> = ({ ua, registered, setSession, setLoading, setStar
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.startButton} onClick={outboundCall} disabled={!registered}>
+        <button className={styles.startButton} onClick={outboundCall}>
           Начать разговор
         </button>
       </div>
