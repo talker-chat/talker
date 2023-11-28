@@ -5,6 +5,7 @@ import React from "react"
 import config from "@root/config"
 
 import styles from "../style.m.scss"
+import { isMobile } from "@helpers/device"
 
 type Props = {
   loading: boolean
@@ -12,14 +13,12 @@ type Props = {
 }
 
 const Ringing: React.FC<Props> = ({ loading, hangup }) => {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-
   return (
     <>
       <div className={styles.main}>
         <Loader />
 
-        {config.ringSound && !isIOS && <Ringtone play={loading} />}
+        {config.ringSound && !isMobile && <Ringtone play={loading} />}
       </div>
 
       <div className={styles.actions}>
