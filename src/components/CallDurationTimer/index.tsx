@@ -8,7 +8,7 @@ type Props = {
   className?: string
 }
 
-export const CallDurationTimer: React.FC<Props> = ({ answeredAt, className }) => {
+const CallDurationTimer: React.FC<Props> = ({ answeredAt, className }) => {
   const [duration, setDuration] = useState(0)
   const timerRef = useRef<number>(0)
 
@@ -24,3 +24,5 @@ export const CallDurationTimer: React.FC<Props> = ({ answeredAt, className }) =>
 
   return <div className={className}>{durationFormat(duration)}</div>
 }
+
+export default CallDurationTimer

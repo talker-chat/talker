@@ -7,7 +7,7 @@ import logger from "@helpers/logger"
 
 const api = axios.create({
   withCredentials: true,
-  baseURL: `https://${config.host}/api`,
+  baseURL: `https://${config.sip.host}/api`,
   headers: {
     "Content-Type": "application/json"
   }
