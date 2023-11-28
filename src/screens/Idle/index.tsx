@@ -7,19 +7,22 @@ import config from "@root/config"
 import styles from "../style.m.scss"
 import logger from "@helpers/logger"
 
+import { SettingsType } from "@interfaces/settings"
+
 type Props = {
   ua: UserAgent | null
   registered: boolean
+  settings: SettingsType
   setSession: (session: Session) => void
   setLoading: (loading: boolean) => void
   setStartedAt: (startedAt: Date) => void
 }
 
-const Idle: React.FC<Props> = ({ ua, registered, setSession, setLoading, setStartedAt }) => {
+const Idle: React.FC<Props> = ({ ua, registered, settings, setSession, setLoading, setStartedAt }) => {
   const outboundCall = () => {
-    if(!ua || !registered) return alert("Неизвестная ошибка, попробуйте позже")
+    if (!ua || !registered) return alert("Неизвестная ошибка, попробуйте позже")
 
-    const target = UserAgent.makeURI(`sip:${config.dst}@${config.host}`)
+    const target = UserAgent.makeURI(`sip:${config.sip.dst}@${config.sip.host}`)
     if (!target) {
       throw new Error("Failed to create target URI.")
     }
@@ -27,6 +30,9 @@ const Idle: React.FC<Props> = ({ ua, registered, setSession, setLoading, setStar
     const outboundSession = new Inviter(ua, target, {
       sessionDescriptionHandlerOptions: {
         constraints: { audio: true, video: false }
+      },
+      params: {
+        toDisplayName: `city=${settings.city?.title || ""}`
       }
     })
 

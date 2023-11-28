@@ -1,7 +1,6 @@
-
-import {CallDurationTimer} from '@components/CallDurationTimer'
-import {Mic, MicOff} from '@components/Icons'
-import VolumeRange from '@components/VolumeRange'
+import CallDurationTimer from "@components/CallDurationTimer"
+import { Mic, MicOff } from "@components/Icons"
+import VolumeRange from "@components/VolumeRange"
 import React from "react"
 
 import styles from "../style.m.scss"
@@ -18,8 +17,7 @@ const InCall: React.FC<Props> = ({ answeredAt, streamAudio, muted, handleMute, h
   return (
     <>
       <div className={styles.main}>
-        <CallDurationTimer answeredAt={answeredAt} className={styles.timer}/>
-
+        <CallDurationTimer answeredAt={answeredAt} className={styles.timer} />
       </div>
 
       <div className={styles.actions}>
@@ -31,7 +29,7 @@ const InCall: React.FC<Props> = ({ answeredAt, streamAudio, muted, handleMute, h
           </div>
         )}
 
-        <button className={styles.cancelButton} onClick={hangup} >
+        <button className={styles.cancelButton} onClick={hangup}>
           Завершить
         </button>
       </div>

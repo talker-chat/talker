@@ -1,8 +1,10 @@
 export default {
-  host: "talker.su",
-  account: "44",
-  password: "44",
-  dst: "talker",
+  sip: {
+    host: "talker.su",
+    account: "44",
+    password: "44",
+    dst: "talker"
+  },
   ringSound: true,
   fetchStatsDelay: 20_000,
   audio: {

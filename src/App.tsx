@@ -1,6 +1,6 @@
 import { getLocalIp, getStats } from "@api/index"
 import { Logo } from "@components/Icons"
-import { Idle, Ringing, InCall } from "@screens/index"
+import { Idle, Ringing, InCall, Settings } from "@screens/index"
 import dayjs from "dayjs"
 import React, { useState, useEffect, useRef } from "react"
 import { UserAgent, Registerer, SessionState, RegistererState } from "sip.js"
@@ -12,6 +12,7 @@ import logger from "@helpers/logger"
 import { useMobilePageVisibility } from "@helpers/visibility"
 
 import { SIPEventListener, Invite } from "@interfaces/app"
+import { SettingsType } from "@interfaces/settings"
 
 import type { Session } from "sip.js"
 
@@ -19,6 +20,7 @@ import styles from "./style.m.scss"
 
 const App = () => {
   const [stream, setStream] = useState<MediaStream | null>(null)
+  const [streamAudio, setStreamAudio] = useState<HTMLAudioElement | null>(null)
 
   const [ua, setUA] = useState<UserAgent | null>(null)
   const [session, setSession] = useState<Session | null>(null)
@@ -27,26 +29,25 @@ const App = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [registered, setRegistered] = useState<boolean>(false)
   const [muted, setMuted] = useState<boolean>(false)
+  const [settings, setSettings] = useState<SettingsType>({ open: false, city: null })
   const [stats, setStats] = useState({ contacts: 0 })
-
-  const [streamAudio, setStreamAudio] = useState<HTMLAudioElement | null>(null)
 
   const eventListener = useRef<SIPEventListener>()
   const isMobileVisible = useMobilePageVisibility()
 
-  const registration = async  () => {
+  const registration = async () => {
     const ip = await getLocalIp()
 
     try {
       const UA = new UserAgent({
-        authorizationUsername: config.account,
-        authorizationPassword: config.password,
-        contactName: config.account,
+        authorizationUsername: config.sip.account,
+        authorizationPassword: config.sip.password,
+        contactName: config.sip.account,
         displayName: ip,
         logLevel: "error",
-        uri: UserAgent.makeURI(`sip:${config.account}@${config.host}`),
+        uri: UserAgent.makeURI(`sip:${config.sip.account}@${config.sip.host}`),
         transportOptions: {
-          server: `wss://${config.host}/ws`
+          server: `wss://${config.sip.host}/ws`
         }
       })
 
@@ -153,7 +154,7 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    if(!isMobileVisible) hangup()
+    if (!isMobileVisible) hangup()
   }, [isMobileVisible])
 
   useEffect(() => {
@@ -165,14 +166,26 @@ const App = () => {
   }, [session, invite.startedAt, invite.answeredAt])
 
   const getScreen = () => {
+    if (settings.open) return <Settings settings={settings} setSettings={setSettings} />
+
     if (loading) return <Ringing loading={loading} hangup={hangup} />
 
-    if (invite.answeredAt) return <InCall answeredAt={invite.answeredAt} streamAudio={streamAudio} muted={muted} handleMute={handleMute} hangup={hangup} />
+    if (invite.answeredAt)
+      return (
+        <InCall
+          answeredAt={invite.answeredAt}
+          streamAudio={streamAudio}
+          muted={muted}
+          handleMute={handleMute}
+          hangup={hangup}
+        />
+      )
 
     return (
       <Idle
         ua={ua}
         registered={registered}
+        settings={settings}
         setSession={setSession}
         setLoading={setLoading}
         setStartedAt={startedAt => setInvite({ ...invite, startedAt })}
@@ -184,7 +197,10 @@ const App = () => {
     <div className={styles.talker}>
       <Logo />
 
-      <p className={styles.stats}>{`Сейчас онлайн: ${stats.contacts}`}</p>
+      <p
+        className={styles.stats}
+        onClick={() => setSettings({ ...settings, open: !settings.open })}
+      >{`Сейчас онлайн: ${stats.contacts}`}</p>
 
       {getScreen()}
     </div>

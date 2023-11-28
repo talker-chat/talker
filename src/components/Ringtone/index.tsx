@@ -9,7 +9,11 @@ const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random() * RINGTONES.l
 
 const getRingtoneElement = () => document.getElementById("ringtone") as HTMLAudioElement
 
-const Ringtone = ({ play }: { play: boolean }) => {
+type Props = {
+  play: boolean
+}
+
+const Ringtone: React.FC<Props> = ({ play }) => {
   const [ringtone, setRingtone] = useState<string>(ring2)
 
   const playRing = () => {
