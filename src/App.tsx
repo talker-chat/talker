@@ -9,6 +9,7 @@ import config from "@root/config"
 
 import { disableAudioControls, cleanupMedia, setupRemoteMedia, toggleMicro } from "@helpers/app"
 import logger from "@helpers/logger"
+import { useMobilePageVisibility } from "@helpers/visibility"
 
 import { SIPEventListener, Invite } from "@interfaces/app"
 
@@ -31,6 +32,7 @@ const App = () => {
   const [streamAudio, setStreamAudio] = useState<HTMLAudioElement | null>(null)
 
   const eventListener = useRef<SIPEventListener>()
+  const isMobileVisible = useMobilePageVisibility()
 
   const registration = async  () => {
     const ip = await getLocalIp()
@@ -93,7 +95,6 @@ const App = () => {
     setMuted(!muted)
     if (!session) return
     toggleMicro(session, muted)
-
   }
 
   const sessionListener = (newState: SessionState) => {
@@ -150,6 +151,10 @@ const App = () => {
     setStream(new MediaStream())
     initAudio()
   }, [])
+
+  useEffect(() => {
+    if(!isMobileVisible) hangup()
+  }, [isMobileVisible])
 
   useEffect(() => {
     if (session) {
