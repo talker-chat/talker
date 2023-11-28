@@ -1,4 +1,4 @@
-import { getCities } from "@api/vk"
+import { getCities } from "@api/index"
 import React, { useEffect } from "react"
 import { components } from "react-select"
 import AsyncSelect from "react-select/async"

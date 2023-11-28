@@ -8,8 +8,5 @@ export type City = {
 }
 
 export type CityResponse = {
-  response: {
-    count: number
-    items: Array<City>
-  }
+  cities: Array<City>
 }

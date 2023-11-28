@@ -5,6 +5,8 @@ import config from "@root/config"
 
 import logger from "@helpers/logger"
 
+import { City, CityResponse } from "@interfaces/city"
+
 const api = axios.create({
   withCredentials: true,
   baseURL: `https://${config.sip.host}/api`,
@@ -32,5 +34,15 @@ export const getStats = async () => {
   } catch (error) {
     logger.error(error)
     return 0
+  }
+}
+
+export const getCities = async (search?: string): Promise<Array<City>> => {
+  try {
+    const response = await api.get<CityResponse>(`/vk/cities?search=${search}`)
+    return response.data.cities
+  } catch (error) {
+    logger.error(error)
+    return []
   }
 }
