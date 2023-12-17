@@ -54,7 +54,7 @@ const Idle: React.FC<Props> = ({ ua, registered, settings, setSession, setLoadin
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.startButton} onClick={outboundCall}>
+        <button id="button-start" className={styles.startButton} onClick={outboundCall}>
           Начать разговор
         </button>
       </div>

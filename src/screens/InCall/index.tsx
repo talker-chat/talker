@@ -29,7 +29,7 @@ const InCall: React.FC<Props> = ({ answeredAt, streamAudio, muted, handleMute, h
           </div>
         )}
 
-        <button className={styles.cancelButton} onClick={hangup}>
+        <button id="button-cancel" className={styles.cancelButton} onClick={hangup}>
           Завершить
         </button>
       </div>
