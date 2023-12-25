@@ -1,8 +1,8 @@
 export default {
   sip: {
     host: "talker.su",
-    account: "44",
-    password: "44",
+    accounts: ["peer1", "peer2", "peer3", "peer4", "peer5"],
+    password: "talker",
     dst: "talker"
   },
   ringSound: true,
