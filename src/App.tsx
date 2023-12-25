@@ -35,17 +35,17 @@ const App = () => {
   const eventListener = useRef<SIPEventListener>()
   const isMobileVisible = useMobilePageVisibility()
 
-  const registration = async () => {
+  const registration = async (account: string) => {
     const ip = await getLocalIp()
 
     try {
       const UA = new UserAgent({
-        authorizationUsername: config.sip.account,
+        authorizationUsername: account,
         authorizationPassword: config.sip.password,
-        contactName: config.sip.account,
+        contactName: account,
         displayName: ip,
         logLevel: "error",
-        uri: UserAgent.makeURI(`sip:${config.sip.account}@${config.sip.host}`),
+        uri: UserAgent.makeURI(`sip:${account}@${config.sip.host}`),
         transportOptions: {
           server: `wss://${config.sip.host}/ws`
         }
@@ -143,7 +143,9 @@ const App = () => {
   }
 
   useEffect(() => {
-    registration()
+    const account = config.sip.accounts[Math.floor(Math.random() * config.sip.accounts.length)]
+    registration(account)
+
     window.addEventListener("beforeunload", () => window.sipSession?.bye())
 
     fetchStats()
