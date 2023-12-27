@@ -1,9 +1,11 @@
 import ring1 from "assets/audio/1.mp3"
 import ring2 from "assets/audio/2.mp3"
 import ring3 from "assets/audio/3.mp3"
+import ring4 from "assets/audio/4.mp3"
+import ring5 from "assets/audio/5.mp3"
 import React, { useState, useEffect } from "react"
 
-const RINGTONES = [ring1, ring2, ring3]
+const RINGTONES = [ring1, ring2, ring3, ring4, ring5]
 
 const gerRandomRingtone = () => RINGTONES[Math.floor(Math.random() * RINGTONES.length)]
 
